@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reisen: Arbeits- und Reflexionsumgebung</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Film, Essay, Gegenwartsdiagnose</p>
+        <h1>Reisen: Freiheit, Ware, Erzaehlung</h1>
+      </div>
+      <nav aria-label="Bereiche">
+        <a href="#filme">Filme</a>
+        <a href="#texte">Texte</a>
+        <a href="#werkstatt">Werkstatt</a>
+        <button id="printBtn" type="button">Drucken</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-media">
+          <video
+            id="featuredPlayer"
+            controls
+            preload="metadata"></video>
+        </div>
+        <div class="hero-copy">
+          <p class="eyebrow">Leitfrage</p>
+          <h2 id="hero-title">Wann wird Reisen zur Erfahrung, wann zur bestaetigten Vorstellung?</h2>
+          <p>Die Umgebung fuehrt durch die Dropbox-Filme der Reihe <strong>Ohne Flugzeug um die Welt</strong> und legt daneben drei Texte: Hans Magnus Enzensbergers Theorie des Tourismus sowie Valentin Groebners <em>Ferienmuede</em> und <em>Abgefahren</em>.</p>
+          <div class="quick-actions">
+            <a href="materialien/Enzensberger_Tourismus.docx">Enzensberger</a>
+            <a href="materialien/Groebner_Ferienmuede_9783835397323.pdf">Groebner: Ferienmuede</a>
+            <a href="materialien/Groebner_Abgefahren_9783835397835.pdf">Groebner: Abgefahren</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="controls" aria-label="Filter">
+        <label>
+          <span>Suchen</span>
+          <input id="searchInput" type="search" placeholder="Ort, Motiv, Titel ...">
+        </label>
+        <label>
+          <span>Modus</span>
+          <select id="modeSelect">
+            <option value="all">Dropbox-Reihe 1-28</option>
+            <option value="main">Hauptreihe 1-28</option>
+          </select>
+        </label>
+        <label>
+          <span>Textlinse</span>
+          <select id="lensSelect">
+            <option value="all">Alle Linsen</option>
+            <option value="freiheit">Freiheit und Flucht</option>
+            <option value="bilder">Bildermachen</option>
+            <option value="komfort">Komfort und Entbehrung</option>
+            <option value="begegnung">Begegnung und Blick</option>
+            <option value="rueckkehr">Rueckkehr und Erzaehlen</option>
+          </select>
+        </label>
+      </section>
+
+      <section id="filme" class="split" aria-labelledby="films-title">
+        <div>
+          <p class="eyebrow">Chronologische Route</p>
+          <h2 id="films-title">Filme als Reiseprotokoll</h2>
+          <p class="section-note">Die Hauptreihe ist nach Episodennummern sortiert. Verwendet werden bewusst nur die MP4-Dateien aus dem freigegebenen Dropbox-Ordner.</p>
+        </div>
+        <div id="videoList" class="video-list"></div>
+      </section>
+
+      <section id="texte" class="text-lab" aria-labelledby="texts-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Textkompass</p>
+            <h2 id="texts-title">Drei Denkangebote</h2>
+          </div>
+          <p>Nutze die Karten als Linsen fuer die Filme. Jede Karte gibt dir eine Frage, mit der du eine Szene beobachten kannst.</p>
+        </div>
+        <div id="textCards" class="text-grid"></div>
+      </section>
+
+      <section id="werkstatt" class="workspace" aria-labelledby="workspace-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Arbeitsraum</p>
+            <h2 id="workspace-title">Beobachten, vergleichen, urteilen</h2>
+          </div>
+          <button id="clearNotes" type="button">Notizen loeschen</button>
+        </div>
+
+        <div class="tasks">
+          <article>
+            <h3>1. Szenenprotokoll</h3>
+            <p>Waehle drei Filmszenen. Notiere: Welche Erwartung an Ferne wird aufgebaut? Welche Wirklichkeit stoert diese Erwartung?</p>
+          </article>
+          <article>
+            <h3>2. Textdialog</h3>
+            <p>Setze Enzensbergers These von Tourismus als Fluchtbewegung gegen Groebners Skepsis gegen touristische Bilder. Wo bestaetigt die Filmreihe beide, wo widerspricht sie?</p>
+          </article>
+          <article>
+            <h3>3. Eigenes Urteil</h3>
+            <p>Formuliere eine These: Ist Reisen hier Widerstand gegen Massentourismus, dessen Neuauflage, oder beides zugleich?</p>
+          </article>
+        </div>
+
+        <label class="notes">
+          <span>Arbeitsjournal</span>
+          <textarea id="notes" placeholder="Beobachtungen, Zitate, Szenen, Fragen ..."></textarea>
+        </label>
+      </section>
+    </main>
+
+    <footer>
+      <p>Materialien bleiben lokal in diesem Ordner. Videos werden nicht heruntergeladen, sondern ueber die freigegebenen Dropbox-Links geoeffnet.</p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
