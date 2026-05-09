@@ -101,29 +101,71 @@ function renderVideos() {
 
   list.innerHTML = filtered.map((video) => `
     <article class="video-card">
-      <button class="thumb" type="button" data-video="${video.n}" aria-label="Teil ${video.n} im Player laden">
-        <span class="badge">Teil ${video.n}</span>
-        MP4
-      </button>
-      <div>
+      <div class="video-main">
+        <button class="thumb" type="button" data-play="${video.n}" aria-label="Teil ${video.n} direkt in dieser Karte laden">
+          <span class="badge">Teil ${video.n}</span>
+          <span class="play-mark">▶</span>
+          <span class="thumb-label">Film laden</span>
+        </button>
+      </div>
+      <div class="video-body">
         <h3>${video.title}</h3>
         <div class="video-meta">
           <span>${video.place}</span>
           ${video.lens.map((tag) => `<span class="tag">${labelFor(tag)}</span>`).join('')}
         </div>
         <p>${video.note}</p>
-        <div class="video-actions">
-          <a href="${video.url}" target="_blank" rel="noreferrer">Dropbox-Link öffnen</a>
-          <a href="${video.streamUrl}" target="_blank" rel="noreferrer">Direkte MP4-Quelle</a>
-        </div>
+      </div>
+      <div class="learning-tools">
+        <label class="reflection">
+          <span>Reflexion</span>
+          <textarea data-reflection="${video.n}" placeholder="${reflectionPrompt(video)}"></textarea>
+        </label>
+        <section class="content-check" aria-label="Inhaltssicherung zu Teil ${video.n}">
+          <h4>Inhaltssicherung</h4>
+          <p>${checkPrompt(video)}</p>
+          <textarea data-answer="${video.n}" placeholder="2-3 Sätze: Was passiert? Welche Reiseerfahrung wird sichtbar?"></textarea>
+          <div class="check-row">
+            <button type="button" data-check="${video.n}">Sofortfeedback</button>
+            <span class="feedback" data-feedback="${video.n}" aria-live="polite"></span>
+          </div>
+          <details>
+            <summary>Musterlösung anzeigen</summary>
+            <p>${modelSolution(video)}</p>
+          </details>
+        </section>
       </div>
     </article>
   `).join('');
 
-  document.querySelectorAll('[data-video]').forEach((button) => {
+  document.querySelectorAll('[data-play]').forEach((button) => {
     button.addEventListener('click', () => {
-      const selected = videos.find((video) => String(video.n) === button.dataset.video);
-      if (selected) loadFeatured(selected);
+      const selected = videos.find((video) => String(video.n) === button.dataset.play);
+      if (selected) loadInlinePlayer(button, selected);
+    });
+  });
+
+  document.querySelectorAll('[data-reflection]').forEach((field) => {
+    const key = `reise-reflexion-${field.dataset.reflection}`;
+    field.value = localStorage.getItem(key) || '';
+    field.addEventListener('input', () => localStorage.setItem(key, field.value));
+  });
+
+  document.querySelectorAll('[data-answer]').forEach((field) => {
+    const key = `reise-sicherung-${field.dataset.answer}`;
+    field.value = localStorage.getItem(key) || '';
+    field.addEventListener('input', () => localStorage.setItem(key, field.value));
+  });
+
+  document.querySelectorAll('[data-check]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const selected = videos.find((video) => String(video.n) === button.dataset.check);
+      const answer = document.querySelector(`[data-answer="${button.dataset.check}"]`);
+      const feedback = document.querySelector(`[data-feedback="${button.dataset.check}"]`);
+      if (selected && answer && feedback) {
+        feedback.textContent = evaluateAnswer(selected, answer.value);
+        feedback.className = `feedback ${feedbackTone(selected, answer.value)}`;
+      }
     });
   });
 }
@@ -147,6 +189,101 @@ function labelFor(tag) {
     begegnung: 'Begegnung',
     rueckkehr: 'Rückkehr'
   }[tag] || tag;
+}
+
+function loadInlinePlayer(button, video) {
+  const container = button.closest('.video-main');
+  container.innerHTML = `
+    <video class="inline-player" controls autoplay preload="metadata" aria-label="Teil ${video.n}: ${video.title}">
+      <source src="${video.streamUrl}" type="video/mp4">
+    </video>
+  `;
+  loadFeatured(video);
+}
+
+function reflectionPrompt(video) {
+  return `Welche Szene aus Teil ${video.n} irritiert oder bestätigt deine Vorstellung von Reisen? Verbinde deine Beobachtung mit ${video.lens.map(labelFor).join(' und ')}.`;
+}
+
+function checkPrompt(video) {
+  return `Fasse Teil ${video.n} knapp zusammen und nenne mindestens eine Reiseerfahrung, die zur Textlinse passt.`;
+}
+
+function modelSolution(video) {
+  return `Teil ${video.n} führt nach ${video.place}. Im Zentrum steht: ${video.note} Eine tragfähige Sicherung verbindet also eine konkrete Station oder Handlung mit einer Deutung, etwa ${video.lens.map(labelFor).join(' oder ')}.`;
+}
+
+function evaluateAnswer(video, rawAnswer) {
+  const score = answerScore(video, rawAnswer);
+  if (!rawAnswer.trim()) {
+    return 'Schreibe zuerst deine Sicherung. Zwei konkrete Sätze reichen.';
+  }
+  if (score >= 3) {
+    return 'Stark: Du sicherst Ort/Handlung und deutest die Reiseerfahrung. Deine Formulierung kann als Arbeitsgrundlage dienen.';
+  }
+  if (score === 2) {
+    return 'Solide Grundlage: Ergänze noch eine genauere Station, Handlung oder Deutungslinse, damit die Sicherung belastbarer wird.';
+  }
+  return 'Noch zu allgemein: Nenne einen konkreten Ort oder Vorgang und verbinde ihn mit einer Reiseerfahrung.';
+}
+
+function feedbackTone(video, rawAnswer) {
+  const score = answerScore(video, rawAnswer);
+  if (!rawAnswer.trim()) return 'neutral';
+  if (score >= 3) return 'good';
+  if (score === 2) return 'medium';
+  return 'low';
+}
+
+function answerScore(video, rawAnswer) {
+  const answer = normalize(rawAnswer);
+  if (!answer) return 0;
+  const checks = [
+    keywordHit(answer, placeKeywords(video)),
+    keywordHit(answer, titleKeywords(video)),
+    keywordHit(answer, lensKeywords(video.lens)),
+    rawAnswer.trim().split(/\s+/).length >= 18
+  ];
+  return checks.filter(Boolean).length;
+}
+
+function normalize(value) {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ß/g, 'ss');
+}
+
+function keywordHit(answer, groups) {
+  return groups.some((group) => group.some((word) => answer.includes(normalize(word))));
+}
+
+function placeKeywords(video) {
+  return video.place
+    .split(/[,/]/)
+    .map((place) => place.trim())
+    .filter(Boolean)
+    .map((place) => [place]);
+}
+
+function titleKeywords(video) {
+  const words = video.title
+    .split(/\s+/)
+    .map((word) => word.replace(/[^\p{L}\p{N}-]/gu, ''))
+    .filter((word) => word.length > 4);
+  return words.map((word) => [word]);
+}
+
+function lensKeywords(lenses) {
+  const lexicon = {
+    freiheit: ['freiheit', 'flucht', 'ausbruch', 'unabhängigkeit', 'selbstbestimmung', 'langsamkeit', 'umweg'],
+    bilder: ['bild', 'bilder', 'foto', 'kamera', 'film', 'vorstellung', 'inszenierung', 'beweis'],
+    komfort: ['komfort', 'entbehrung', 'anstrengung', 'körper', 'mühe', 'kälte', 'grenze', 'überforderung'],
+    begegnung: ['begegnung', 'gastfreundschaft', 'hilfe', 'fremdheit', 'kontakt', 'kommunikation', 'blick'],
+    rueckkehr: ['rückkehr', 'heimkehr', 'zuhause', 'abschied', 'erzählung', 'kreis', 'ende']
+  };
+  return lenses.map((lens) => lexicon[lens] || [lens]);
 }
 
 searchInput.addEventListener('input', renderVideos);

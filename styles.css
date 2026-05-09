@@ -210,12 +210,18 @@ select {
   background: var(--white);
 }
 
+.video-main {
+  min-width: 0;
+}
+
 .thumb {
+  width: 100%;
   aspect-ratio: 16 / 9;
   position: relative;
   overflow: hidden;
   border-radius: 6px;
   background: #111;
+  border-color: #111;
 }
 
 .thumb {
@@ -224,6 +230,41 @@ select {
   justify-content: center;
   color: rgba(255, 255, 255, 0.72);
   font-weight: 800;
+  flex-direction: column;
+  gap: 6px;
+  min-height: auto;
+  padding: 0;
+}
+
+.thumb:hover,
+.thumb:focus-visible {
+  background: #17211f;
+  outline: 3px solid rgba(62, 111, 143, 0.22);
+}
+
+.play-mark {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  font-size: 1.1rem;
+}
+
+.thumb-label {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.82rem;
+}
+
+.inline-player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+  border-radius: 6px;
+  background: #101515;
 }
 
 .badge {
@@ -262,10 +303,85 @@ select {
   font-weight: 700;
 }
 
-.video-actions {
+.video-body {
+  min-width: 0;
+}
+
+.learning-tools {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
+  gap: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.reflection,
+.content-check {
+  min-width: 0;
+  padding: 14px;
+  border-radius: 8px;
+  background: #f8faf7;
+  border: 1px solid var(--line);
+}
+
+.reflection textarea,
+.content-check textarea {
+  min-height: 110px;
+}
+
+.content-check h4 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.content-check p {
+  margin-bottom: 10px;
+  color: var(--muted);
+}
+
+.check-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.feedback {
+  min-height: 34px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  align-items: center;
+  padding: 7px 9px;
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.feedback.good {
+  background: #e1eee4;
+  color: #284f31;
+}
+
+.feedback.medium {
+  background: #f3edd5;
+  color: #6f5522;
+}
+
+.feedback.low,
+.feedback.neutral {
+  background: #f4e5df;
+  color: #7a3d2d;
+}
+
+details {
+  color: var(--muted);
+}
+
+summary {
+  cursor: pointer;
+  color: var(--blue);
+  font-weight: 800;
 }
 
 .section-head {
@@ -339,6 +455,14 @@ footer {
   }
 
   .video-card {
+    grid-template-columns: 1fr;
+  }
+
+  .learning-tools {
+    grid-template-columns: 1fr;
+  }
+
+  .check-row {
     grid-template-columns: 1fr;
   }
 }
